@@ -1,6 +1,6 @@
 name := "compound-sort-helpers"
 
-organization := "com.kschuetz"
+organization := "com.github.kschuetz"
 
 version := "0.1"
 

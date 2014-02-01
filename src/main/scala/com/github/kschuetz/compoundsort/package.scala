@@ -1,4 +1,4 @@
-package com.kschuetz
+package com.github.kschuetz
 
 /**
  * Created by kes on 2/1/14.
