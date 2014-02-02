@@ -51,7 +51,7 @@ package object compoundsort {
   }
   
   /**
-   * Returns a comparator function that orders items where the criteria extraction fails (i.e. returns None) before those where the extraction succeeds.
+   * Returns a comparator function that orders items where the criteria extraction fails (i.e. returns None) after those where the extraction succeeds.
    *
    * For those where the extraction succeeds, the items are compared by the function provided in the comparator parameter.
    *
