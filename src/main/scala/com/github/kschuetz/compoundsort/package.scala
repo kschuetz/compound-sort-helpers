@@ -79,8 +79,12 @@ package object compoundsort {
     - ordering.compare(left, right)
   }
 
-  implicit def boolCompareFeatures2IntCompareFeatures[B](compareFeatures: (B, B) => Boolean): (B, B) => Int = {
+  def leftIf[B](compareFeatures: (B, B) => Boolean): (B, B) => Int = {
     (x, y) => if(compareFeatures(x, y)) -1 else 1
+  }
+
+  def rightIf[B](compareFeatures: (B, B) => Boolean): (B, B) => Int = {
+    (x, y) => if(compareFeatures(x, y)) 1 else -1
   }
 
   val foo = compare2[String, Int](_.length)(ascending)(leftFirst)
