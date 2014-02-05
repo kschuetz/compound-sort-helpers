@@ -34,6 +34,16 @@ package object compoundsort {
     }
   }
 
+  def ascending[B](implicit ordering: Ordering[B]): (B, B) => Int =
+    { (left, right) =>
+        ordering.compare(left, right)
+    }
+
+  def descending[B](implicit ordering: Ordering[B]): (B, B) => Int =
+  { (left, right) =>
+    - ordering.compare(left, right)
+  }
+
 
   /**
    * Returns a comparator function that orders items where the feature extraction fails (i.e. returns None) before those where the extraction succeeds.
