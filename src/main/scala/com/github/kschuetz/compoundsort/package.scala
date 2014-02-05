@@ -6,69 +6,69 @@ package com.github.kschuetz
 package object compoundsort {
 
   /**
-   * Returns a comparator function that orders items by first extracting the sort criteria, and the comparing the extracted criteria.
+   * Returns a comparator function that orders items by first extracting a feature from each item, and then comparing this feature between items.
    * 
-   * @param extractor   A function that extracts criteria from an item.  This criteria is what will be compared between two elements in the collection.
-   * @param comparator  A function to compare the order of two Bs.  This function should return true if the left argument should appear earlier in the sort order than the right.
+   * @param getFeature   A function that extracts a feature from an item.  The value that is returned from this function is what will be compared between two elements in the collection.
+   * @param compareFeatures  A function to compare the order of two features.  This function should return true if the left argument should appear earlier in the sort order than the right.
    * @param tiebreaker  The next comparison to try if the comparison results in a tie.
    * @tparam A          The type of the item in the collection that is ultimately being sorted.
-   * @tparam B          The type of the sort criteria that may be extracted from the collection item
+   * @tparam B          The type of the feature that may be extracted from the collection item.
    * @return            A function that can be used as an argument to the sortWith method of a collection, or as the comparator in other
    *                    functions in the compoundsort library.
    */
-  def compare[A, B](extractor: A => B)(comparator: (B, B) => Boolean)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
+  def compare[A, B](getFeature: A => B)(compareFeatures: (B, B) => Boolean)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
     { (a, b) =>
-      val left = extractor(a)
-      val right = extractor(b)
-      if(left != right) comparator(left, right)
+      val left = getFeature(a)
+      val right = getFeature(b)
+      if(left != right) compareFeatures(left, right)
       else tiebreaker(a, b)
     }
   }
 
 
   /**
-   * Returns a comparator function that orders items where the criteria extraction fails (i.e. returns None) before those where the extraction succeeds.
+   * Returns a comparator function that orders items where the feature extraction fails (i.e. returns None) before those where the extraction succeeds.
    *
-   * For those where the extraction succeeds, the items are compared by the function provided in the comparator parameter.
+   * For those where the extraction succeeds, the items are compared by the function provided in the compareFeatures parameter.
    *
-   * @param extractor   A function that (maybe) extracts criteria from an item.  This criteria is what will be compared between two elements in the collection.
-   * @param comparator  A function to compare the order of two Bs.  This function should return true if the left argument should appear earlier in the sort order than the right.
+   * @param getFeature   A function that (maybe) extracts a feature from an item.  The value that is returned from this function is what will be compared between two elements in the collection.
+   * @param compareFeatures  A function to compare the order of two features.  This function should return true if the left argument should appear earlier in the sort order than the right.
    * @param tiebreaker  The next comparison to try if the comparison results in a tie.
    * @tparam A          The type of the item in the collection that is ultimately being sorted.
-   * @tparam B          The type of the sort criteria that may be extracted from the collection item
+   * @tparam B          The type of the feature that may be extracted from the collection item.
    * @return            A function that can be used as an argument to the sortWith method of a collection, or as the comparator in other
    *                    functions in the compoundsort library.
    */
-  def compareOptionNullsFirst[A, B](extractor: A => Option[B])(comparator: (B, B) => Boolean)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
+  def compareOptionNullsFirst[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Boolean)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
     { (a, b) =>
-      (extractor(a), extractor(b)) match {
+      (getFeature(a), getFeature(b)) match {
         case (Some(_), None) => false
         case (None, Some(_)) => true
-        case (Some(left), Some(right)) if left != right => comparator(left, right)
+        case (Some(left), Some(right)) if left != right => compareFeatures(left, right)
         case _ => tiebreaker(a, b)
       }
     }
   }
   
   /**
-   * Returns a comparator function that orders items where the criteria extraction fails (i.e. returns None) after those where the extraction succeeds.
+   * Returns a comparator function that orders items where the feature extraction fails (i.e. returns None) after those where the extraction succeeds.
    *
    * For those where the extraction succeeds, the items are compared by the function provided in the comparator parameter.
    *
-   * @param extractor   A function that (maybe) extracts criteria from an item.  This criteria is what will be compared between two elements in the collection.
-   * @param comparator  A function to compare the order of two Bs.  This function should return true if the left argument should appear earlier in the sort order than the right.
+   * @param getFeature   A function that (maybe) extracts a feature from an item.  The value that is returned from this function is what will be compared between two elements in the collection.
+   * @param compareFeatures  A function to compare the order of two features.  This function should return true if the left argument should appear earlier in the sort order than the right.
    * @param tiebreaker  The next comparison to try if the comparison results in a tie.
    * @tparam A          The type of the item in the collection that is ultimately being sorted.
-   * @tparam B          The type of the sort criteria that may be extracted from the collection item
+   * @tparam B          The type of the feature that may be extracted from the collection item.
    * @return            A function that can be used as an argument to the sortWith method of a collection, or as the comparator in other
    *                    functions in the compoundsort library.
    */
-  def compareOptionNullsLast[A, B](extractor: A => Option[B])(comparator: (B, B) => Boolean)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
+  def compareOptionNullsLast[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Boolean)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
     { (a, b) =>
-      (extractor(a), extractor(b)) match {
+      (getFeature(a), getFeature(b)) match {
         case (Some(_), None) => true
         case (None, Some(_)) => false
-        case (Some(left), Some(right)) if left != right => comparator(left, right)
+        case (Some(left), Some(right)) if left != right => compareFeatures(left, right)
         case _ => tiebreaker(a, b)
       }
     }
