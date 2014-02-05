@@ -5,6 +5,7 @@ package com.github.kschuetz
  */
 package object compoundsort {
 
+  type OrderBy[A] = (A, A) => Boolean
 
   class Tiebreaker[A](fn: (A, A) => Boolean) {
     def apply(x: A, y: A) = fn(x, y)
@@ -40,6 +41,8 @@ package object compoundsort {
   implicit def fn2Tiebreaker[A](fn: (A, A) => Boolean) = new Tiebreaker[A](fn)
 
   implicit def defaultTiebreaker[A] = new Tiebreaker[A](leftFirst)
+
+  implicit def defaultTiebreaker2[A] = leftFirst[A] _
 
   /**
    * Returns a comparator function that orders items by first extracting a feature from each item, and then comparing this feature between items.
@@ -82,7 +85,7 @@ package object compoundsort {
 
   val foo = compare2[String, Int](_.length)(ascending)(leftFirst)
 
-  def orderBy[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: Tiebreaker[A]): (A, A) => Boolean = {
+  def orderBy[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): OrderBy[A] = {
     { (a, b) =>
       val left = getFeature(a)
       val right = getFeature(b)
