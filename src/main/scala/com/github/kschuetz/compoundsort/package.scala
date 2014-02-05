@@ -7,10 +7,6 @@ package object compoundsort {
 
   type OrderBy[A] = (A, A) => Boolean
 
-  class Tiebreaker[A](fn: (A, A) => Boolean) {
-    def apply(x: A, y: A) = fn(x, y)
-  }
-
   /**
    * A comparator which always instructs the caller to order the left argument first.
    *
@@ -37,10 +33,6 @@ package object compoundsort {
   def rightFirst[A](a: A, b: A): Boolean =
     false
 
-
-  implicit def fn2Tiebreaker[A](fn: (A, A) => Boolean) = new Tiebreaker[A](fn)
-
-  implicit def defaultTiebreaker[A] = new Tiebreaker[A](leftFirst)
 
   implicit def defaultTiebreaker2[A] = leftFirst[A] _
 
