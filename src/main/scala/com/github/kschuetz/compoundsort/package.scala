@@ -25,6 +25,15 @@ package object compoundsort {
     }
   }
 
+  def compare2[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
+    { (a, b) =>
+      val left = getFeature(a)
+      val right = getFeature(b)
+      val compared = compareFeatures(left, right)
+      if(compared == 0) tiebreaker(a, b) else (compared < 0)
+    }
+  }
+
 
   /**
    * Returns a comparator function that orders items where the feature extraction fails (i.e. returns None) before those where the extraction succeeds.
@@ -49,6 +58,20 @@ package object compoundsort {
       }
     }
   }
+
+  def compareOptionNullsFirst2[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Int)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
+    { (a, b) =>
+      (getFeature(a), getFeature(b)) match {
+        case (Some(_), None) => false
+        case (None, Some(_)) => true
+        case (Some(left), Some(right)) => {
+          val compared = compareFeatures(left, right)
+          if (compared == 0) tiebreaker(a, b) else (compared < 0)
+        }
+        case _ => tiebreaker(a, b)
+      }
+    }
+  }
   
   /**
    * Returns a comparator function that orders items where the feature extraction fails (i.e. returns None) after those where the extraction succeeds.
@@ -69,6 +92,20 @@ package object compoundsort {
         case (Some(_), None) => true
         case (None, Some(_)) => false
         case (Some(left), Some(right)) if left != right => compareFeatures(left, right)
+        case _ => tiebreaker(a, b)
+      }
+    }
+  }
+
+  def compareOptionNullsLast2[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Int)(tiebreaker: (A, A) => Boolean): (A, A) => Boolean = {
+    { (a, b) =>
+      (getFeature(a), getFeature(b)) match {
+        case (Some(_), None) => true
+        case (None, Some(_)) => false
+        case (Some(left), Some(right)) => {
+          val compared = compareFeatures(left, right)
+          if (compared == 0) tiebreaker(a, b) else (compared < 0)
+        }
         case _ => tiebreaker(a, b)
       }
     }
