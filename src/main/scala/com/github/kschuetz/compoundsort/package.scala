@@ -94,6 +94,20 @@ package object compoundsort {
     }
   }
 
+  def orderByNullsFirst[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
+    { (a, b) =>
+      (getFeature(a), getFeature(b)) match {
+        case (Some(_), None) => false
+        case (None, Some(_)) => true
+        case (Some(left), Some(right)) => {
+          val compared = compareFeatures(left, right)
+          if (compared == 0) andThenBy.fn(a, b) else (compared < 0)
+        }
+        case _ => andThenBy.fn(a, b)
+      }
+    }
+  }
+
 
   val bar = orderBy[String, Int](_.length)(descending){ foo }
 
