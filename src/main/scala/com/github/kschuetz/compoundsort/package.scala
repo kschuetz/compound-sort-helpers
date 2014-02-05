@@ -5,6 +5,42 @@ package com.github.kschuetz
  */
 package object compoundsort {
 
+
+  class Tiebreaker[A](fn: (A, A) => Boolean) {
+    def apply(x: A, y: A) = fn(x, y)
+  }
+
+  /**
+   * A comparator which always instructs the caller to order the left argument first.
+   *
+   * Can be used to terminate a chain of compare/compareOptions, as it does not require a tiebreaker function.
+   *
+   * @param a   The first item to be compared.
+   * @param b   The second item to be compared.
+   * @tparam A  The type of the item in the collection that is ultimately being sorted.
+   * @return    Always returns true.
+   */
+  def leftFirst[A](a: A, b: A): Boolean =
+    true
+
+  /**
+   * A comparator which always instructs the caller to order the right argument first.
+   *
+   * Can be used to terminate a chain of compare/compareOptions, as it does not require a tiebreaker function.
+   *
+   * @param a   The first item to be compared.
+   * @param b   The second item to be compared.
+   * @tparam A  The type of the item in the collection that is ultimately being sorted.
+   * @return    Always returns false.
+   */
+  def rightFirst[A](a: A, b: A): Boolean =
+    false
+
+
+  implicit def fn2Tiebreaker[A](fn: (A, A) => Boolean) = new Tiebreaker[A](fn)
+
+  implicit def defaultTiebreaker[A] = new Tiebreaker[A](leftFirst)
+
   /**
    * Returns a comparator function that orders items by first extracting a feature from each item, and then comparing this feature between items.
    * 
@@ -43,6 +79,19 @@ package object compoundsort {
   { (left, right) =>
     - ordering.compare(left, right)
   }
+
+  val foo = compare2[String, Int](_.length)(ascending)(leftFirst)
+
+  def orderBy[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: Tiebreaker[A]): (A, A) => Boolean = {
+    { (a, b) =>
+      val left = getFeature(a)
+      val right = getFeature(b)
+      val compared = compareFeatures(left, right)
+      if(compared == 0) andThenBy(a, b) else (compared < 0)
+    }
+  }
+
+  val bar = orderBy[String, Int](_.length)(descending){ foo }
 
 
   /**
@@ -121,30 +170,6 @@ package object compoundsort {
     }
   }
 
-  /**
-   * A comparator which always instructs the caller to order the left argument first.
-   * 
-   * Can be used to terminate a chain of compare/compareOptions, as it does not require a tiebreaker function.
-   * 
-   * @param a   The first item to be compared.
-   * @param b   The second item to be compared.
-   * @tparam A  The type of the item in the collection that is ultimately being sorted.
-   * @return    Always returns true.
-   */
-  def leftFirst[A](a: A, b: A): Boolean =
-    true
 
-  /**
-   * A comparator which always instructs the caller to order the right argument first.
-   *
-   * Can be used to terminate a chain of compare/compareOptions, as it does not require a tiebreaker function.
-   *
-   * @param a   The first item to be compared.
-   * @param b   The second item to be compared.
-   * @tparam A  The type of the item in the collection that is ultimately being sorted.
-   * @return    Always returns false.
-   */
-  def rightFirst[A](a: A, b: A): Boolean =
-    false
 
 }
