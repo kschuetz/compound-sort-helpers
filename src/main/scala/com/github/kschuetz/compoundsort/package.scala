@@ -5,7 +5,11 @@ package com.github.kschuetz
  */
 package object compoundsort {
 
-  type OrderBy[A] = (A, A) => Boolean
+  class OrderBy[A](val fn: (A, A) => Boolean)
+
+  implicit def orderBy2Fn[A](orderBy: OrderBy[A]): (A, A) => Boolean = orderBy.fn
+  implicit def fn2OrderBy[A](fn: (A, A) => Boolean): OrderBy[A] = new OrderBy[A](fn)
+
 
   /**
    * A comparator which always instructs the caller to order the left argument first.
@@ -34,7 +38,7 @@ package object compoundsort {
     false
 
 
-  implicit def defaultTiebreaker2[A] = leftFirst[A] _
+  implicit def defaultTiebreaker[A]: OrderBy[A] = leftFirst[A] _
 
   /**
    * Returns a comparator function that orders items by first extracting a feature from each item, and then comparing this feature between items.
@@ -75,16 +79,21 @@ package object compoundsort {
     - ordering.compare(left, right)
   }
 
+  implicit def boolCompareFeatures2IntCompareFeatures[B](compareFeatures: (B, B) => Boolean): (B, B) => Int = {
+    (x, y) => if(compareFeatures(x, y)) -1 else 1
+  }
+
   val foo = compare2[String, Int](_.length)(ascending)(leftFirst)
 
-  def orderBy[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): OrderBy[A] = {
+  def orderBy[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
     { (a, b) =>
       val left = getFeature(a)
       val right = getFeature(b)
       val compared = compareFeatures(left, right)
-      if(compared == 0) andThenBy(a, b) else (compared < 0)
+      if(compared == 0) andThenBy.fn(a, b) else (compared < 0)
     }
   }
+
 
   val bar = orderBy[String, Int](_.length)(descending){ foo }
 
