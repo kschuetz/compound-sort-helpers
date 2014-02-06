@@ -70,18 +70,18 @@ object OrderBySpec extends Properties("OrderBy") {
   implicit lazy val arbThings: Arbitrary[Seq[Thing]] = Arbitrary(generateThings)
 
   val sortOrder1 = orderByFeature[Thing, Int](_.foo)(ascending){
-                     orderByFeatureNullsFirst[Thing, Int](_.bar)(descending){
-                       orderByFeature[Thing, (Int, Int)](_.waldo)(leftIf(_._1 < _._2))
-                     }
+                     orderByFeatureNullsFirst[Thing, Int](_.bar)(descending)
                    }
+
+  val sortOrder2 = orderByFeature[Thing, (Int, Int)](_.waldo)(leftIf(_._1 < _._2))
 
 
   def isAscending[A](coll: Seq[A])(implicit ord: Ordering[A]) = {
-    (coll, coll.tail).zipped.forall(ord.compare(_,_) <= 0)
+    coll.isEmpty || (coll, coll.tail).zipped.forall(ord.compare(_,_) <= 0)
   }
 
   def isDescending[A](coll: Seq[A])(implicit ord: Ordering[A]) = {
-    (coll, coll.tail).zipped.forall(ord.compare(_,_) >= 0)
+    coll.isEmpty || (coll, coll.tail).zipped.forall(ord.compare(_,_) >= 0)
   }
 
   def isAscendingNullsFirst[A](coll: Seq[Option[A]])(implicit ord: Ordering[A]) = {
@@ -103,10 +103,17 @@ object OrderBySpec extends Properties("OrderBy") {
     val (nonNulls, nulls) = coll.span(_.nonEmpty)
     nulls.forall(_.isEmpty) && isDescending(nonNulls)
   }
-  
+
+  def groups[A, K](coll: Seq[A])(f: (A) => K): Seq[Seq[A]] =
+    coll.groupBy(f).toList.map(_._2)
 
   property("sortOrder1") = forAll { things: Seq[Thing] =>
     val sorted = things.sortWith(sortOrder1)
-    isAscending(sorted.map(_.foo))
+    isAscending(sorted.map(_.foo)) && {
+      groups(sorted)(_.foo).forall { xs =>
+        isDescendingNullsFirst(xs.map(_.bar))
+      }
+    }
+
   }
 }
