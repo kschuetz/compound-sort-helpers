@@ -150,15 +150,4 @@ package object compoundsort {
   }
 
 
-
-   /*
-  val bar = orderByFeature[String, Int](_.length)(descending){ foo }
-
-  val baz = orderBy(ascending[String]){ bar }
-
-  val quux = orderBy[String](leftIf(_ < _ ))
-  */
-
-
-
 }
