@@ -89,7 +89,16 @@ package object compoundsort {
 
   val foo = compare2[String, Int](_.length)(ascending)(leftFirst)
 
-  def orderBy[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
+
+  def orderBy[A](compare: (A, A) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
+    (a, b) => {
+      val compared = compare(a, b)
+      if (compared == 0) andThenBy.fn(a, b) else (compared < 0)
+    }
+  }
+
+
+  def orderByFeature[A, B](getFeature: A => B)(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
     { (a, b) =>
       val left = getFeature(a)
       val right = getFeature(b)
@@ -98,7 +107,7 @@ package object compoundsort {
     }
   }
 
-  def orderByNullsFirst[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
+  def orderByFeatureNullsFirst[A, B](getFeature: A => Option[B])(compareFeatures: (B, B) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
     { (a, b) =>
       (getFeature(a), getFeature(b)) match {
         case (Some(_), None) => false
@@ -113,8 +122,11 @@ package object compoundsort {
   }
 
 
-  val bar = orderBy[String, Int](_.length)(descending){ foo }
+  val bar = orderByFeature[String, Int](_.length)(descending){ foo }
 
+  val baz = orderBy(ascending[String]){ bar }
+
+  val quux = orderBy[String](leftIf(_ < _ ))
 
   /**
    * Returns a comparator function that orders items where the feature extraction fails (i.e. returns None) before those where the extraction succeeds.
