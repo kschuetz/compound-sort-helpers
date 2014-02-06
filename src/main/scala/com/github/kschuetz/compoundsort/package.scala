@@ -59,7 +59,15 @@ package object compoundsort {
     (x, y) => if(compareFeatures(x, y)) 1 else -1
   }
 
-
+  /**
+   * Returns a comparator function that orders items using a provided comparator that passes the decision to the another comparator in the case of a tie.
+   *
+   * @param compare  A function to compare the order of two features.  Value returned indicates order:  negative for left first, positive for right first, zero for tie.
+   * @param andThenBy  The next comparison to try if the comparison results in a tie.
+   * @tparam A          The type of the item in the collection that is ultimately being sorted.
+   * @return            A function that can be used as an argument to the sortWith method of a collection, or as the comparator in other
+   *                    functions in the compoundsort library.
+   */
   def orderBy[A](compare: (A, A) => Int)(implicit andThenBy: OrderBy[A]): (A, A) => Boolean = {
     (a, b) => {
       val compared = compare(a, b)
@@ -143,14 +151,6 @@ package object compoundsort {
 
 
 
-
-
-
-
-
-
-
-
    /*
   val bar = orderByFeature[String, Int](_.length)(descending){ foo }
 
@@ -158,10 +158,6 @@ package object compoundsort {
 
   val quux = orderBy[String](leftIf(_ < _ ))
   */
-
-
-
-
 
 
 
