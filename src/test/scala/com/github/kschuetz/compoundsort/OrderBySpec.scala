@@ -69,11 +69,14 @@ object OrderBySpec extends Properties("OrderBy") {
 
   implicit lazy val arbThings: Arbitrary[Seq[Thing]] = Arbitrary(generateThings)
 
-  val sortOrder1 = orderByFeature[Thing, Int](_.foo)(ascending){
-                     orderByFeatureNullsFirst[Thing, Int](_.bar)(descending)
-                   }
+  val sortOrder1 =
+    orderByFeature[Thing, Int](_.foo)(ascending){
+      orderByFeatureNullsFirst[Thing, Int](_.bar)(descending)
+    }
 
-  val sortOrder2 = orderByFeature[Thing, (Int, Int)](_.waldo)(leftIf(_._1 < _._2))
+  val sortOrder2 = orderByFeature[Thing, Boolean](_.baz)(ascending) {
+    orderByFeature[Thing, Long](x => x.waldo._1 & x.waldo._2)(descending)
+  }
 
 
   def isAscending[A](coll: Seq[A])(implicit ord: Ordering[A]) = {
@@ -114,6 +117,14 @@ object OrderBySpec extends Properties("OrderBy") {
         isDescendingNullsFirst(xs.map(_.bar))
       }
     }
+  }
 
+  property("sortOrder2") = forAll { things: Seq[Thing] =>
+    val sorted = things.sortWith(sortOrder2)
+    isAscending(sorted.map(_.baz)) && {
+      groups(sorted)(_.baz).forall { xs =>
+        isDescending(xs.map(x => x.waldo._1 & x.waldo._2))
+      }
+    }
   }
 }
