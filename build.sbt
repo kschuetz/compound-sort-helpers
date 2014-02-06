@@ -12,6 +12,8 @@ crossScalaVersions := Seq("2.10.1", "2.10.0", "2.9.2", "2.9.1", "2.9.0-1", "2.9.
 
 scalaVersion := "2.10.2"
 
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+
 pomExtra := {
   <url>https://github.com/kschuetz/compound-sort-helpers</url>
     <licenses>
