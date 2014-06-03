@@ -6,7 +6,7 @@ name := "compound-sort-helpers"
 
 organization := "com.github.kschuetz"
 
-version := "1.0.1-SNAPSHOT"
+version := "1.0.1"
 
 crossScalaVersions := Seq("2.11.1", "2.10.4", "2.9.3")
 
