@@ -10,7 +10,7 @@ version := "1.0.1-SNAPSHOT"
 
 crossScalaVersions := Seq("2.11.1", "2.10.4", "2.9.3")
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.10.4"
 
 libraryDependencies += "org.scalacheck" % "scalacheck_2.10" % "1.11.2" % "test"
 
