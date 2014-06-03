@@ -6,11 +6,11 @@ name := "compound-sort-helpers"
 
 organization := "com.github.kschuetz"
 
-version := "1.0.0"
+version := "1.0.1-SNAPSHOT"
 
-crossScalaVersions := Seq("2.10.1", "2.10.0", "2.9.2", "2.9.1", "2.9.0-1", "2.9.0")
+crossScalaVersions := Seq("2.11.1", "2.10.4", "2.9.3")
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.1"
 
 libraryDependencies += "org.scalacheck" % "scalacheck_2.10" % "1.11.2" % "test"
 
