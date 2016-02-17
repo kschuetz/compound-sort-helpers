@@ -8,7 +8,7 @@ organization := "com.github.kschuetz"
 
 version := "1.0.1"
 
-crossScalaVersions := Seq("2.11.1", "2.10.4", "2.9.3")
+crossScalaVersions := Seq("2.11.7", "2.10.4", "2.9.3")
 
 scalaVersion := "2.10.4"
 
